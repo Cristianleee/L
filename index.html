@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>С 8 Марта! - Улучшенная анимация</title>
+    <style>
+        :root {
+            --primary-color: #ff6b95;
+            --secondary-color: #f9c1d5;
+            --accent-color: #8e44ad;
+            --text-color: #6d214f;
+            --light-color: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(120deg, #f6d2e0, #f9d1e7, #ffe0f0);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .card {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 600px;
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover {
+            transform: perspective(1000px) translateY(-5px) rotateX(5deg);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+
+        p {
+            color: var(--text-color);
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-top: 1.5rem;
+            font-weight: 400;
+        }
+
+        .flowers-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .flower {
+            position: absolute;
+            z-index: 1;
+            transform-origin: center;
+            will-change: transform;
+        }
+
+        .petal {
+            position: absolute;
+            width: 20px;
+            height: 40px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            background: var(--primary-color);
+            top: 0;
+            left: 50%;
+            transform-origin: center bottom;
+            filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.1));
+            opacity: 0.9;
+        }
+
+        .center {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ffeb3b;
+            border-radius: 50%;
+            z-index: 2;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(1px);
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5),
+                        0 0 20px rgba(255, 255, 255, 0.2);
+            z-index: -1;
+            animation: float-bubble calc(10s + (var(--i) * 5s)) ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        .falling-petal {
+            position: absolute;
+            width: 15px;
+            height: 30px;
+            background: var(--secondary-color);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            z-index: 1;
+            opacity: 0.8;
+            animation: fall linear forwards;
+            transform-origin: center;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            z-index: 2;
+            animation: sparkle-fade var(--duration, 3s) infinite;
+            box-shadow: 0 0 5px white, 0 0 10px var(--primary-color);
+        }
+
+        @keyframes float-bubble {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(var(--tx), var(--ty)); }
+        }
+
+        @keyframes petal-sway {
+            0%, 100% { transform: rotate(var(--base-angle)) scale(0.95); }
+            50% { transform: rotate(calc(var(--base-angle) + var(--range))) scale(1.05); }
+        }
+
+        @keyframes flower-float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(var(--tx1), var(--ty1)) rotate(var(--r1)); }
+            50% { transform: translate(var(--tx2), var(--ty2)) rotate(var(--r2)); }
+            75% { transform: translate(var(--tx3), var(--ty3)) rotate(var(--r3)); }
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(calc(100vh + 100px)) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes sparkle-fade {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .fancy-text {
+            position: relative;
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: text-pulse 3s infinite;
+        }
+
+        @keyframes text-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .fancy-text::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            p { font-size: 1.2rem; }
+            .card { padding: 1.5rem; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2rem; }
+            p { font-size: 1rem; }
+            .card { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="flowers-wrapper" id="flowersContainer"></div>
+    <div class="card">
+        <h1>С 8 Марта!</h1>
+        <p>Пусть этот день подарит тебе радость, весеннее настроение и самые тёплые чувства!</p>
+        <div class="fancy-text">❤️любимке! ❤️</div>
+    </div>
+
+    <script>
+        // Создание цветов
+        function createFlower(type, size = 40) {
+            const flower = document.createElement('div');
+            flower.className = 'flower';
+            flower.style.width = `${size}px`;
+            flower.style.height = `${size}px`;
+
+            if (type === 'rose') {
+                // Роза
+                const petalCount = 8 + Math.floor(Math.random() * 4);
+                const colors = ['#ff6b95', '#ff85a1', '#ff9baa', '#ffa8b6', '#ffb6c1'];
+                for (let i = 0; i < petalCount; i++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    petal.style.width = `${size * 0.5}px`;
+                    petal.style.height = `${size * 0.8}px`;
+                    const angle = (360 / petalCount) * i;
+                    const baseAngle = angle;
+                    const swayRange = 5 + Math.random() * 10;
+                    petal.style.setProperty('--base-angle', `${baseAngle}deg`);
+                    petal.style.setProperty('--range', `${swayRange}deg`);
+                    petal.style.transform = `translate(-50%, 0) rotate(${angle}deg)`;
+                    petal.style.animation = `petal-sway ${3 + Math.random() * 2}s ease-in-out infinite`;
+                    flower.appendChild(petal);
+                }
+            } else if (type === 'tulip') {
+                // Тюльпан
+                const petalCount = 6;
+                const colors = ['#ff6b95', '#ff85a1', '#ff9baa'];
+                for (let i = 0; i < petalCount; i++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    petal.style.width = `${size * 0.4}px`;
+                    petal.style.height = `${size * 0.6}px`;
+                    const angle = (360 / petalCount) * i;
+                    const baseAngle = angle;
+                    const swayRange = 5 + Math.random() * 10;
+                    petal.style.setProperty('--base-angle', `${baseAngle}deg`);
+                    petal.style.setProperty('--range', `${swayRange}deg`);
+                    petal.style.transform = `translate(-50%, 0) rotate(${angle}deg)`;
+                    petal.style.animation = `petal-sway ${3 + Math.random() * 2}s ease-in-out infinite`;
+                    flower.appendChild(petal);
+                }
+            } else if (type === 'daisy') {
+                // Ромашка
+                const petalCount = 12;
+                const colors = ['#ffffff', '#f9c1d5', '#ffe0f0'];
+                for (let i = 0; i < petalCount; i++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    petal.style.width = `${size * 0.3}px`;
+                    petal.style.height = `${size * 0.5}px`;
+                    const angle = (360 / petalCount) * i;
+                    const baseAngle = angle;
+                    const swayRange = 5 + Math.random() * 10;
+                    petal.style.setProperty('--base-angle', `${baseAngle}deg`);
+                    petal.style.setProperty('--range', `${swayRange}deg`);
+                    petal.style.transform = `translate(-50%, 0) rotate(${angle}deg)`;
+                    petal.style.animation = `petal-sway ${3 + Math.random() * 2}s ease-in-out infinite`;
+                    flower.appendChild(petal);
+                }
+            }
+
+            const center = document.createElement('div');
+            center.className = 'center';
+            center.style.width = `${size * 0.4}px`;
+            center.style.height = `${size * 0.4}px`;
+            flower.appendChild(center);
+
+            return flower;
+        }
+
+        // Создание пузырьков фона
+        function createBubbles(count) {
+            const container = document.getElementById('flowersContainer');
+            for (let i = 0; i < count; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = 50 + Math.random() * 200;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const tx = (Math.random() - 0.5) * 100;
+                const ty = (Math.random() - 0.5) * 100;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${posX}%`;
+                bubble.style.top = `${posY}%`;
+                bubble.style.setProperty('--i', i);
+                bubble.style.setProperty('--tx', `${tx}px`);
+                bubble.style.setProperty('--ty', `${ty}px`);
+                bubble.style.animationDuration = `${10 + Math.random() * 20}s`;
+                container.appendChild(bubble);
+            }
+        }
+
+        // Создание падающих лепестков
+        function createFallingPetals() {
+            const container = document.getElementById('flowersContainer');
+            setInterval(() => {
+                const petal = document.createElement('div');
+                petal.className = 'falling-petal';
+                const posX = Math.random() * 100;
+                const size = 10 + Math.random() * 20;
+                const duration = 5 + Math.random() * 15;
+                const rotation = Math.random() * 360;
+                const colors = ['#ff6b95', '#ff85a1', '#ff9baa', '#ffa8b6', '#ffb6c1'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                petal.style.left = `${posX}%`;
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size * 2}px`;
+                petal.style.transform = `rotate(${rotation}deg)`;
+                petal.style.background = color;
+                petal.style.animation = `fall ${duration}s linear forwards`;
+                setTimeout(() => petal.remove(), duration * 1000);
+                container.appendChild(petal);
+            }, 300 + Math.random() * 500);
+        }
+
+        // Создание блестящих частиц
+        function createSparkles(count) {
+            const container = document.getElementById('flowersContainer');
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    const posX = Math.random() * 100;
+                    const posY = Math.random() * 100;
+                    const duration = 1 + Math.random() * 2;
+                    const size = 2 + Math.random() * 4;
+                    sparkle.style.left = `${posX}%`;
+                    sparkle.style.top = `${posY}%`;
+                    sparkle.style.width = `${size}px`;
+                    sparkle.style.height = `${size}px`;
+                    sparkle.style.setProperty('--duration', `${duration}s`);
+                    container.appendChild(sparkle);
+                    setTimeout(() => {
+                        sparkle.remove();
+                        createSparkles(1);
+                    }, duration * 1000 * 3);
+                }, i * 100);
+            }
+        }
+
+        // Создание и анимация цветов
+        function initFlowers(count) {
+            const container = document.getElementById('flowersContainer');
+            const flowerTypes = ['rose', 'tulip', 'daisy'];
+            for (let i = 0; i < count; i++) {
+                const size = 30 + Math.random() * 50;
+                const type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+                const flower = createFlower(type, size);
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const tx1 = (Math.random() - 0.5) * 200;
+                const ty1 = (Math.random() - 0.5) * 200;
+                const tx2 = (Math.random() - 0.5) * 200;
+                const ty2 = (Math.random() - 0.5) * 200;
+                const tx3 = (Math.random() - 0.5) * 200;
+                const ty3 = (Math.random() - 0.5) * 200;
+                const r1 = (Math.random() - 0.5) * 60;
+                const r2 = (Math.random() - 0.5) * 60;
+                const r3 = (Math.random() - 0.5) * 60;
+                flower.style.left = `${posX}%`;
+                flower.style.top = `${posY}%`;
+                flower.style.setProperty('--tx1', `${tx1}px`);
+                flower.style.setProperty('--ty1', `${ty1}px`);
+                flower.style.setProperty('--tx2', `${tx2}px`);
+                flower.style.setProperty('--ty2', `${ty2}px`);
+                flower.style.setProperty('--tx3', `${tx3}px`);
+                flower.style.setProperty('--ty3', `${ty3}px`);
+                flower.style.setProperty('--r1', `${r1}deg`);
+                flower.style.setProperty('--r2', `${r2}deg`);
+                flower.style.setProperty('--r3', `${r3}deg`);
+                const duration = 20 + Math.random() * 20;
+                flower.style.animation = `flower-float ${duration}s ease-in-out infinite`;
+                flower.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(flower);
+            }
+        }
+
+        // Инициализация всех элементов при загрузке
+        window.addEventListener('load', () => {
+            createBubbles(8);
+            initFlowers(25);
+            createFallingPetals();
+            createSparkles(50);
+
+            const card = document.querySelector('.card');
+            document.addEventListener('mousemove', (e) => {
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                card.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            });
+
+            document.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+
+            card.addEventListener('mouseenter', () => {
+                createSparkles(20);
+            });
+        });
+    </script>
+</body>
+</html>
